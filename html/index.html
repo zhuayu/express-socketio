@@ -30,11 +30,13 @@
           }
           return result[1];
       }
-      var roomId = getQuery('room_id');
+      var roomId = Number(getQuery('room_id'));
       var url = "http://localhost:3000/www";
       var socket = io(url,{
         auth: {
-          token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzM2NTY2MDUsImlzcyI6Imh0dHBzOlwvXC9hcGkuaG9tZS1wbGFuLmNuIiwiZXhwIjoxNjM2MjQ4NjA1LCJhdWQiOiJodHRwczpcL1wvYXBpLmhvbWUtcGxhbi5jbiIsInN1YiI6MSwidHlwZSI6InVzZXIiLCJwbGF0Zm9ybSI6IndlYiIsInNhbHQiOiI4NjRkYWJkZGVlYTI5ZmZjNmY0ZmE1ODc2MWM3NGFiZCJ9.HLhbsn1KW9J-Jls9_QvgdEHPm9hKTcTMRs4-MALPViY"
+          token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzM2NTY2MDUsImlzcyI6Imh0dHBzOlwvXC9hcGkuaG9tZS1wbGFuLmNuIiwiZXhwIjoxNjM2MjQ4NjA1LCJhdWQiOiJodHRwczpcL1wvYXBpLmhvbWUtcGxhbi5jbiIsInN1YiI6MSwidHlwZSI6InVzZXIiLCJwbGF0Zm9ybSI6IndlYiIsInNhbHQiOiI4NjRkYWJkZGVlYTI5ZmZjNmY0ZmE1ODc2MWM3NGFiZCJ9.HLhbsn1KW9J-Jls9_QvgdEHPm9hKTcTMRs4-MALPViY",
+          id: getQuery('user_id'),
+          name: getQuery('user_name'),
         }
       });
 
@@ -55,9 +57,23 @@
         }
       });
 
-      socket.on('chat_message_update', function(msg) {
+      socket.on('CLIENT_CAMP_LIVE_ROOM_MESSAGE', function(data) {
         var item = document.createElement('li');
-        item.textContent = msg;
+        item.textContent = data.user_id + '-' + data.name + ':' + data.value;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on('SERVER_CAMP_LIVE_ROOM_JOIN', function(data) {
+        var item = document.createElement('li');
+        item.textContent = data.user_id + '-' + data.name + ': 加入房间';
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on('SERVER_CAMP_LIVE_ROOM_LEAVE', function(data) {
+        var item = document.createElement('li');
+        item.textContent = data.user_id + '-' + data.name + ': 离开房间';
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });
@@ -65,6 +81,17 @@
       socket.on("connect_error", (err) => {
         console.log(err.message);
       });
+
+      socket.on("disconnect", (reason) => {
+        if (reason === "io server disconnect") {
+          console.log(reason);
+        }
+      });
+
+      socket.io.on("reconnect", (attempt) => {
+        socket.emit('CLIENT_CAMP_LIVE_ROOM_JOIN', { room_id: roomId });
+      });
+
     </script>
   </body>
 </html>

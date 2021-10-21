@@ -9,9 +9,12 @@ module.exports = (socket,next) => {
   }
 
   try{
+
     const decoded = JWT.verify(token, process.env.JWT_SECRET);
     const userId = decoded.sub;
-    socket.userId = userId;
+    // const userId = socket.handshake.auth.id;
+    // socket.userId = userId;
+    socket.name = socket.handshake.auth.name;
     socket.join(roomPrefix.user(userId));
     next();
   } catch (e) {

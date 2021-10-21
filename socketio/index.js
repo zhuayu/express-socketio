@@ -1,5 +1,5 @@
 const JwtMiddleware = require('./middlewares/jwt');
-const campLiveRoomMessageHandlers = require('./www/campLiveRoomMessageHandlers');
+const campLiveRoomHandlers = require('./www/campLiveRoomHandlers');
 
 module.exports = (app) => {
   const io = require('socket.io')(app.server, require('../conf/socketio'));
@@ -8,6 +8,6 @@ module.exports = (app) => {
   io.of('/www')
     .use(JwtMiddleware)
     .on("connection", socket => {
-      campLiveRoomMessageHandlers(io, socket, '/www');
+      campLiveRoomHandlers(io, socket, '/www');
     });
 }
