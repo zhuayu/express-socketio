@@ -1,6 +1,7 @@
 const schema = require('async-validator').default;
 const roomPrefix = require('./../roomPrefix');
 const { checkUserInRoom } = require('./../utils');
+const liveCommentModel = require('./../../models/liveComments.js');
 
 module.exports = (io, socket, nameSpace) => {
 
@@ -21,6 +22,7 @@ module.exports = (io, socket, nameSpace) => {
         });
       }
     }catch(e) {
+      console.log(e)
       socket.emit('UNPROCESSABLE_ENTITY', e.errors);
     }
   }
@@ -39,7 +41,13 @@ module.exports = (io, socket, nameSpace) => {
         user_id: socket.userId,
         name: socket.name,
       });
+      await liveCommentModel.insert({
+        'user_id': socket.userId,
+        'live_id': data.room_id,
+        'content': data.value
+      });
     }catch(e) {
+      console.log(e)
       socket.emit('UNPROCESSABLE_ENTITY', e.errors);
     }
   }

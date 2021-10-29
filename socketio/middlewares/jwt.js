@@ -2,7 +2,9 @@ const JWT = require('jsonwebtoken');
 const roomPrefix = require('./../roomPrefix');
 
 module.exports = (socket,next) => {
-  const token = socket.handshake.auth?.token;
+  const token = socket.handshake.auth
+    ? socket.handshake.auth.token
+    : null;
   if(!token) {
     next(new Error("miss token"));
     return;
